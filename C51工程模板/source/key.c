@@ -10,35 +10,45 @@ static void delay_ms(u16 n)
 	while ( n-- );
 }
 
-
 // 独立键盘检测
-u8 duli_key()
+bool key_on()
 {
-    if ( 0 == GPIO_KEY_1 ) {
+    if ( 0 == GPIO_KEY_ON ) {
         delay_ms(5);  // 消抖
-        if ( 0 == GPIO_KEY_1 ) {
-			return true
+        if ( 0 == GPIO_KEY_ON ) {
+			return true;  // 确实按下去
         }
-
-        while ( !GPIO_KEY_1 ); // 松手检测
+        while ( !GPIO_KEY_ON ); // 松手检测
     } 
 	else {
 		return false;
 	}
 }
 
+bool key_off()
+{
+    if ( 0 == GPIO_KEY_OFF ) {
+        delay_ms(5);  // 消抖
+        if ( 0 == GPIO_KEY_OFF ) {
+			return true;  // 确实按下去
+        }
+        while ( !GPIO_KEY_OFF ); // 松手检测
+    } 
+	else {
+		return false;
+	}
+}
 
 // 4*4矩阵键盘轮询模式
 u8 key_polling()
 {
-    u8 key_num;  // 1~16
+    u8 key_num = 0;  // 0~16
     u8 n = 0;  // 松手检测，时间计数变量
 
     GPIO_KEY = 0x0F;
     if ( GPIO_KEY != 0x0F ) {  // 按下
         delay_ms(5);           // 消抖
         if ( GPIO_KEY != 0x0F ) {   // 确实按下
-
             // 列扫描
             GPIO_KEY = 0x0F;
             switch ( GPIO_KEY ) {
@@ -48,7 +58,6 @@ u8 key_polling()
                 case 0x0E: key_num = 4; break;
 				default: return 0;  // 未按下直接返回 0
             }
-
             // 行扫描
             GPIO_KEY = 0xF0;
             switch ( GPIO_KEY ) {
@@ -56,9 +65,8 @@ u8 key_polling()
                 case 0xB0: key_num += 4;  break;
                 case 0xD0: key_num += 8;  break;
                 case 0xE0: key_num += 12; break;
-				default: return 0;  // 未按下直接返回 0
+			    default: return 0;  // 未按下直接返回 0
             }
-
             // 松手检测
 			// while ( GPIO_KEY != 0xF0 );  // 如果不松按键，就会一直卡在这里
             while ( n < 50 &&  GPIO_KEY != 0xF0 ) {  // 不会一直卡在这里面，50ms到了自动释放
@@ -70,12 +78,11 @@ u8 key_polling()
     return key_num;
 }
 
-
 // 4*4矩阵键盘阻塞模式
 u8 key_blocking()
 {
 	GPIO_KEY = 0x0F;
-	while ( KEY == 0x0F );  // blocking
+	while ( GPIO_KEY == 0x0F );  // blocking
 	
 	return key_polling();
 }
