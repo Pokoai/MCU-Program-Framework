@@ -1,0 +1,162 @@
+C51 COMPILER V9.60.0.0   TEST                                                              05/23/2023 04:02:00 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TEST
+OBJECT MODULE PLACED IN .\Objects\test.obj
+COMPILER INVOKED BY: C:\Keil\Keil_v5\C51\BIN\C51.EXE test.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings
+                    -\test.lst) TABS(2) OBJECT(.\Objects\test.obj)
+
+line level    source
+
+   1          #include <REG52.H>
+   2          #include <intrins.h>
+   3          
+   4          typedef unsigned int u16;
+   5          typedef unsigned char u8;
+   6          
+   7          // 数码管段选表
+   8          u8 code SmgDuanTable[] = {
+   9              0x3f,0x06,0x5b,0x4f,
+  10              0x66,0x6d,0x7d,0x07,
+  11            0x7f,0x6f,0x77,0x7c,
+  12              0x39,0x5e,0x79,0x71
+  13          };
+  14          
+  15          // 全局变量
+  16          u8 cnt = 0; 
+  17          
+  18          // 位寄存器
+  19          sbit LED1 = P0^0;
+  20          sbit LED2 = P0^1;
+  21          sbit BEEP = P1^5;           // 蜂鸣器
+  22          sbit REALY = P1^6;          // 继电器
+  23          sbit LE = P1^0;             // 锁存器的锁存端
+  24          sbit SQUARE_WAVE = P1^0;   // 输出方波
+  25          
+  26             
+  27          
+  28          // 毫秒延时函数
+  29          void delay_ms(u16 n)
+  30          {
+  31   1          u8 n1 = 23;
+  32   1      
+  33   1        n *= n1;
+  34   1          while ( n-- );
+  35   1      }
+  36          
+  37          // 打开蜂鸣器
+  38          void beep_on(void)
+  39          {
+  40   1          u8 i;
+  41   1      
+  42   1          for (i = 0; i < 10; i++ ) {
+  43   2              BEEP = !BEEP;   // 无源蜂鸣器
+  44   2              delay_ms(10);
+  45   2          }
+  46   1          
+  47   1      }
+  48          
+  49          // 关闭蜂鸣器
+  50          void beep_off(void)
+  51          {
+  52   1          BEEP = 0;
+  53   1      }
+  54          
+C51 COMPILER V9.60.0.0   TEST                                                              05/23/2023 04:02:00 PAGE 2   
+
+  55          // 1. 第一个灯以间隔 200ms 闪烁
+  56          // void main(void)
+  57          // {
+  58          //     P0 = 0x00;
+  59          
+  60          //     while(1){
+  61          //         LED1 = 1;
+  62          //         delay_ms(200);
+  63          //         LED1 = 0;
+  64          //         delay_ms(200);
+  65          //     }
+  66          // }
+  67          
+  68          // 2. 1s流水灯，每个管亮 500ms，灭 500ms, 亮时蜂鸣器响，灭时关闭蜂鸣器
+  69          // void main(void)
+  70          // {   
+  71          //     u8 temp; 
+  72          //     P0 = 0x00;
+  73          
+  74          //     temp = 0x01;
+  75          //     while(1){
+  76          //         P2 = 0x1f;
+  77          //         P0 = temp;
+  78          //         BEEP_on();
+  79          //         // REALY = 0;  // 打开继电器
+  80          //         delay_ms(500);
+  81          
+  82          //         P0 = 0x00;
+  83          //         BEEP_off(); 
+  84          //         // REALY = 1;  // 关闭继电器
+  85          //         delay_ms(500);
+  86          
+  87          //         temp = _crol_(temp, 1);
+  88          //         P0 = temp;
+  89          //     }
+  90          // }
+  91          
+  92          
+  93          
+  94          // 定时器初始化
+  95          void timer0_init()
+  96          {
+  97   1          TMOD = 0x01;    // 16位定时器工作方式1
+  98   1          TH0 = 0x3C;     // 装初值 50ms
+  99   1          TL0 = 0xB0;
+ 100   1          TR0 = 1;       // 启动定时器
+ 101   1          ET0 = 1;       // 允许定时器中断
+ 102   1          EA = 1;        // 开总中断
+ 103   1      }
+ 104          
+ 105          
+ 106          
+ 107          void main()
+ 108          {
+ 109   1          // 定时器0初始化
+ 110   1          timer0_init();
+ 111   1      
+ 112   1          while(1) {
+ 113   2              // smg_display();
+ 114   2              // interrupt_init();
+ 115   2              
+ 116   2      
+C51 COMPILER V9.60.0.0   TEST                                                              05/23/2023 04:02:00 PAGE 3   
+
+ 117   2              }
+ 118   1      
+ 119   1          
+ 120   1      }
+ 121          
+ 122          // 定时器中断服务程序
+ 123          void timer0() interrupt 1
+ 124          {
+ 125   1          // 装初值
+ 126   1          TH0 = 0x3C;
+ 127   1          TL0 = 0xB0;
+ 128   1      
+ 129   1          cnt++;
+ 130   1          if ( 2 == cnt ) {
+ 131   2              cnt = 0;  // 清零
+ 132   2              P0 = ~P0;  // 电平反向
+ 133   2          }
+ 134   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     91    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

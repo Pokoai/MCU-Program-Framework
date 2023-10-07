@@ -1,0 +1,169 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    05/22/2022  12:27:54  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+C:\KEIL\KEIL_V5\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\da_pwm.obj TO .\Objects\DA_PWM PRINT (.\Listings\DA_PW
+>> M.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\da_pwm.obj (DA_PWM)
+
+
+LINK MAP OF MODULE:  .\Objects\DA_PWM (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0004H     UNIT         ?DT?DA_PWM
+                    000CH     0014H                  *** GAP ***
+            BIT     0020H.0   0000H.1   UNIT         ?BI?DA_PWM
+                    0020H.1   0000H.7                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+                    000EH     07F2H                  *** GAP ***
+            CODE    0800H     002FH     UNIT         ?PR?MAIN?DA_PWM
+            CODE    082FH     001BH     UNIT         ?PR?TIMER0?DA_PWM
+            CODE    084AH     0010H     UNIT         ?PR?TIMER0_INIT?DA_PWM
+            CODE    085AH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\DA_PWM (?C_STARTUP)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?DA_PWM
+
+?PR?MAIN?DA_PWM
+  +--> ?PR?TIMER0_INIT?DA_PWM
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\DA_PWM (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/22/2022  12:27:54  PAGE 2
+
+
+  -------         MODULE        ?C_STARTUP
+  C:085AH         SEGMENT       ?C_C51STARTUP
+  I:0021H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:085DH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:085AH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:085AH         LINE#         133
+  C:085CH         LINE#         134
+  C:085DH         LINE#         135
+  C:085EH         LINE#         136
+  C:0860H         LINE#         185
+  C:0863H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        DA_PWM
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0008H         PUBLIC        t0
+  C:0800H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  D:000AH         PUBLIC        cnt
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  C:082FH         PUBLIC        timer0
+  B:00A0H.1       PUBLIC        pwm
+  B:0088H.4       PUBLIC        TR0
+  B:0020H.0       PUBLIC        DIR
+  D:00C8H         PUBLIC        T2CON
+  C:084AH         PUBLIC        timer0_init
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/22/2022  12:27:54  PAGE 3
+
+
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          TIMER0_INIT
+  C:084AH         LINE#         14
+  C:084AH         LINE#         15
+  C:084AH         LINE#         16
+  C:084DH         LINE#         18
+  C:0850H         LINE#         19
+  C:0853H         LINE#         21
+  C:0855H         LINE#         22
+  C:0857H         LINE#         23
+  C:0859H         LINE#         24
+  -------         ENDPROC       TIMER0_INIT
+  -------         PROC          TIMER0
+  C:082FH         LINE#         26
+  C:0831H         LINE#         28
+  C:0834H         LINE#         29
+  C:0837H         LINE#         31
+  C:083FH         LINE#         32
+  C:0847H         LINE#         33
+  -------         ENDPROC       TIMER0
+  -------         PROC          MAIN
+  C:0800H         LINE#         35
+  C:0800H         LINE#         36
+  C:0800H         LINE#         37
+  C:0803H         LINE#         39
+  C:0805H         LINE#         40
+  C:0805H         LINE#         41
+  C:0810H         LINE#         42
+  C:0815H         LINE#         43
+  C:0817H         LINE#         44
+  C:0817H         LINE#         46
+  C:0822H         LINE#         47
+  C:0827H         LINE#         48
+  C:082BH         LINE#         49
+  C:082DH         LINE#         50
+  C:082DH         LINE#         51
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        DA_PWM
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 006CH BYTE ( 5%) *
+******************************************************************************
+
+Program Size: data=13.1 xdata=0 code=108
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

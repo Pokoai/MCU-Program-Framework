@@ -1,0 +1,211 @@
+C51 COMPILER V9.60.0.0   KEY                                                               05/21/2022 13:53:40 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN .\Objects\key.obj
+COMPILER INVOKED BY: C:\Keil\Keil_v5\C51\BIN\C51.EXE key.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -key.lst) TABS(2) OBJECT(.\Objects\key.obj)
+
+line level    source
+
+   1          /* 键盘 */
+   2          
+   3          #include <REG52.H>
+   4          #include <intrins.h>
+   5          
+   6          // 类型定义
+   7          typedef unsigned char u8;
+   8          typedef unsigned int u16;
+   9          
+  10          #define GPIO_DIG P0
+  11          #define GPIO_KEY P2
+  12          
+  13          // 管脚定义
+  14          sbit led1 = P0^0;
+  15          sbit key1 = P2^0;
+  16          
+  17          // 数码管位选 - 138译码器
+  18          sbit LSA = P1^0;
+  19          sbit LSB = P1^1;
+  20          sbit LSC = P1^2;
+  21          
+  22          // 数码管段选表
+  23          u8 code SmgDuanTable[] = {
+  24              0x3f,0x06,0x5b,0x4f,
+  25              0x66,0x6d,0x7d,0x07,
+  26            0x7f,0x6f,0x77,0x7c,
+  27              0x39,0x5e,0x79,0x71
+  28          };
+  29          
+  30          // 全局变量
+  31          u8 number = 0;
+  32          
+  33          
+  34          // 毫秒延时函数
+  35          void delay_ms(u16 n)
+  36          {
+  37   1          u8 n1 = 23;
+  38   1      
+  39   1          n *= n1;
+  40   1          while( n-- );
+  41   1      }
+  42          
+  43          // 数码管显示
+  44          void smg_display(u16 num)
+  45          {
+  46   1          LSC = 0, LSB = 0, LSA = 0;
+  47   1      
+  48   1          GPIO_DIG = SmgDuanTable[num];
+  49   1      }
+  50          
+  51          // 独立键盘检测
+  52          void duli_key()
+  53          {
+  54   1          if ( 0 == key1 ) {
+C51 COMPILER V9.60.0.0   KEY                                                               05/21/2022 13:53:40 PAGE 2   
+
+  55   2              delay_ms(5);  // 消抖
+  56   2              if ( 0 == key1 ) {
+  57   3                  number++;
+  58   3                  if ( 16 == number ) {
+  59   4                      number = 0;
+  60   4                  }
+  61   3              }
+  62   2              while (!key1); // 松手检测
+  63   2          }
+  64   1      }
+  65          
+  66          // 矩阵键盘检测V1.0(代码有问题，原因没有找到，不采用这种方式了)
+  67          // u8 key_scan()
+  68          // {
+  69          //     u8 temp;
+  70          //     u8 key_num;
+  71          //     u8 i;  
+  72          
+  73          //     // GPIO_KEY = 0xFE;  
+  74          //     // temp = GPIO_KEY & 0xF0;  // 只检测高四位
+  75          //     // if ( temp != 0xF0 ) {
+  76          //     //     delay_ms(5);    // 消抖
+  77          //     //     temp = GPIO_KEY & 0xF0;
+  78          //     //     if ( temp != 0xF0 ) {
+  79          //     //         switch ( temp ) {
+  80          //     //             case 0xE0: key_num = 1; break;
+  81          //     //             case 0xD0: key_num = 2; break;
+  82          //     //             case 0xB0: key_num = 3; break;
+  83          //     //             case 0x70: key_num = 4; break;
+  84          //     //         }
+  85          //     //     }
+  86          //     // }
+  87          
+  88          //     // GPIO_KEY = 0xFD;  
+  89          //     // temp = GPIO_KEY & 0xF0;  // 只检测高四位
+  90          //     // if ( temp != 0xF0 ) {
+  91          //     //     delay_ms(5);    // 消抖
+  92          //     //     temp = GPIO_KEY & 0xF0;
+  93          //     //     if ( temp != 0xF0 ) {
+  94          //     //         switch ( temp ) {
+  95          //     //             case 0xE0: key_num = 5; break;
+  96          //     //             case 0xD0: key_num = 6; break;
+  97          //     //             case 0xB0: key_num = 7; break;
+  98          //     //             case 0x70: key_num = 8; break;
+  99          //     //         }
+ 100          //     //     }
+ 101          //     // }
+ 102          
+ 103          //     // 用循环精简以上重复代码
+ 104          //     u8 temGPIO_KEY = 0xFE;  // 从第一排开始扫描
+ 105              
+ 106          //     for ( i = 0; i < 4; i++ ) {
+ 107          //         GPIO_KEY = temGPIO_KEY;
+ 108          //         temp = GPIO_KEY & 0xF0;  // 只检测高四位
+ 109          //         if ( temp != 0xF0 ) {
+ 110          //             delay_ms(5);    // 消抖
+ 111          //             temp = GPIO_KEY & 0xF0;
+ 112          //             if ( temp != 0xF0 ) {
+ 113          //                 switch ( temp ) {
+ 114          //                     case 0xE0: key_num = 4*i+1; break;
+ 115          //                     case 0xD0: key_num = 4*i+2; break;
+ 116          //                     case 0xB0: key_num = 4*i+3; break;
+C51 COMPILER V9.60.0.0   KEY                                                               05/21/2022 13:53:40 PAGE 3   
+
+ 117          //                     case 0x70: key_num = 4*i+4; break;
+ 118          //                 }
+ 119          //             }
+ 120          //         }
+ 121          //         temGPIO_KEY = _cror_(temGPIO_KEY, 1); 
+ 122          //         if ( 0xEF == temGPIO_KEY ) {
+ 123          //             temGPIO_KEY = 0xFE;
+ 124          //         }
+ 125          //     }
+ 126          
+ 127          //     return key_num;
+ 128          // }
+ 129          
+ 130          
+ 131          // 矩阵键盘检测V2.0
+ 132          u8 key_scan()
+ 133          {
+ 134   1          u8 key_num;
+ 135   1          u8 t = 0;
+ 136   1      
+ 137   1          GPIO_KEY = 0x0F;
+ 138   1          if ( GPIO_KEY != 0x0F ) {  // 按下
+ 139   2              delay_ms(5);           // 消抖
+ 140   2              if ( GPIO_KEY != 0x0F ) {   // 确实按下
+ 141   3                  // 检测列
+ 142   3                  GPIO_KEY = 0x0F;
+ 143   3                  switch ( GPIO_KEY ) {
+ 144   4                      case 0x07: key_num = 1; break;  // 第一列
+ 145   4                      case 0x0B: key_num = 2; break;
+ 146   4                      case 0x0D: key_num = 3; break;
+ 147   4                      case 0x0E: key_num = 4; break;
+ 148   4                  }
+ 149   3                  // 检测行
+ 150   3                  GPIO_KEY = 0xF0;
+ 151   3                  switch ( GPIO_KEY ) {
+ 152   4                      case 0x70: key_num += 0;  break;  // 第一行
+ 153   4                      case 0xB0: key_num += 4;  break;
+ 154   4                      case 0xD0: key_num += 8;  break;
+ 155   4                      case 0xE0: key_num += 12; break;
+ 156   4                  }
+ 157   3                  // 松手检测
+ 158   3                  // while ( (t < 50) &&  GPIO_KEY != 0xF0 ) {
+ 159   3                  //     t++;
+ 160   3                  //     delay_ms(1);
+ 161   3                  // }
+ 162   3      
+ 163   3                  while ( GPIO_KEY != 0xF0 );
+ 164   3              } 
+ 165   2          }
+ 166   1      
+ 167   1          return key_num;
+ 168   1          
+ 169   1      }
+ 170          
+ 171          
+ 172          void main()
+ 173          {
+ 174   1          GPIO_DIG = 0x00;  // 关闭 LED
+ 175   1          
+ 176   1          while (1) {
+ 177   2              smg_display( key_scan()-1 );
+ 178   2      
+C51 COMPILER V9.60.0.0   KEY                                                               05/21/2022 13:53:40 PAGE 4   
+
+ 179   2          }
+ 180   1      }
+ 181          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    197    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

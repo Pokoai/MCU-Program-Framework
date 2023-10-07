@@ -1,0 +1,88 @@
+C51 COMPILER V9.60.0.0   XPT2046                                                           05/23/2022 19:04:23 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE XPT2046
+OBJECT MODULE PLACED IN .\Objects\xpt2046.obj
+COMPILER INVOKED BY: C:\Keil\Keil_v5\C51\BIN\C51.EXE xpt2046.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listi
+                    -ngs\xpt2046.lst) TABS(2) OBJECT(.\Objects\xpt2046.obj)
+
+line level    source
+
+   1          #include "xpt2046.h"
+   2          
+   3          // SPI写数据，即通过 DIN 传入控制字节
+   4          void SPI_Write(u8 dat)
+   5          {
+   6   1          u8 i;
+   7   1          CLK = 0;
+   8   1          for ( i = 0; i < 8; i++ ) {
+   9   2              DIN = dat >> 7;    // 先送最高位
+  10   2      
+  11   2              CLK = 0;           // 写数据：先把数据放到IO口，再送跳变沿
+  12   2              CLK = 1;           // 上升沿传送数据
+  13   2      
+  14   2              dat <<= 1;         // 次高位升到最高位，待下一次传送
+  15   2          }
+  16   1      }
+  17          
+  18          // SPI读数据
+  19          u16 SPI_Read(void)
+  20          {
+  21   1          u8 i;
+  22   1          u16 dat = 0;
+  23   1      
+  24   1          CLK = 0;
+  25   1          for ( i = 0; i < 12; i++ ) {
+  26   2              dat <<= 1;         // 这一句必须放在 dat |= DOUT 之前，因为接受完最后一位时就
+             -不用再移位了   
+  27   2              
+  28   2              CLK = 1;
+  29   2              CLK = 0;           // 下降沿传送数据
+  30   2              
+  31   2              dat |= DOUT;       // 读数据：先送跳变沿，再接收数据
+  32   2              // dat <<= 1;      // 错误！最初放在后面的，输出值为8096，多移了一次
+  33   2          }
+  34   1      
+  35   1          return dat; 
+  36   1      }
+  37          
+  38          // 获取 AD 转换后的数据
+  39          u16 Read_AD_Data(u8 cmd)
+  40          {
+  41   1          u8 i;
+  42   1          u16 AD_Value;
+  43   1      
+  44   1          CS = 0;
+  45   1          CLK = 0;
+  46   1          SPI_Write(cmd);
+  47   1      
+  48   1          for ( i = 0; i < 6; i++ );  // 延时等待转换结束
+  49   1      
+  50   1          CLK = 1;    // 发送一个时钟周期，清除BUSY
+  51   1          _nop_();
+  52   1          _nop_();
+  53   1          CLK = 0;
+C51 COMPILER V9.60.0.0   XPT2046                                                           05/23/2022 19:04:23 PAGE 2   
+
+  54   1          _nop_();
+  55   1          _nop_();
+  56   1      
+  57   1          AD_Value = SPI_Read();
+  58   1          CS = 1;
+  59   1      
+  60   1          return AD_Value;
+  61   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    110    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

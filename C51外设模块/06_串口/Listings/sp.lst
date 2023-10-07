@@ -1,0 +1,119 @@
+C51 COMPILER V9.60.0.0   SP                                                                05/24/2022 12:16:51 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SP
+OBJECT MODULE PLACED IN .\Objects\sp.obj
+COMPILER INVOKED BY: C:\Keil\Keil_v5\C51\BIN\C51.EXE sp.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\s
+                    -p.lst) TABS(2) OBJECT(.\Objects\sp.obj)
+
+line level    source
+
+   1          #include <REG52.H>
+   2          
+   3          unsigned char flag;
+   4          unsigned char temp;
+   5          
+   6          // 定时器初始化-方式2：8位自动重装
+   7          void Timer1_init()
+   8          {
+   9   1          TMOD = 0x20;
+  10   1      
+  11   1          TH1 = 0xFD;
+  12   1          TL1 = 0xFD;
+  13   1      
+  14   1          EA = 1;
+  15   1          // ET1 = 1;     // 这里要注意：定时器1的 ET1千万不能置1，否则 ES 将失效，这两�
+             -��中断允许有冲突
+  16   1          TR1 = 1;       
+  17   1      }
+  18          
+  19          // 串口初始化
+  20          void SP_init()
+  21          {
+  22   1          // SCON = 0x50;
+  23   1          SM0 = 0;
+  24   1          SM1 = 1;
+  25   1          REN = 1;
+  26   1      
+  27   1          PCON &= 0x7F;
+  28   1      
+  29   1          ES = 1;     // 开串口中断允许
+  30   1      }
+  31          
+  32          // 串口中断服务程序
+  33          void sp() interrupt 4
+  34          {
+  35   1          RI = 0;     // 软件清标志位
+  36   1          flag = 1;
+  37   1      
+  38   1          // P0 = SBUF;
+  39   1          temp = SBUF;
+  40   1      }  
+  41          
+  42          
+  43          // 串口控制
+  44          void sp_control()
+  45          {
+  46   1          switch (SBUF) {
+  47   2              case 0x01: P0 = 0xFF; break;
+  48   2              case 0xFF: P0 = 0x00; break;   
+  49   2          }
+  50   1      }
+  51          
+  52          void main()
+  53          {
+C51 COMPILER V9.60.0.0   SP                                                                05/24/2022 12:16:51 PAGE 2   
+
+  54   1          P0 = 0x00;
+  55   1      
+  56   1          Timer1_init();
+  57   1          SP_init();
+  58   1      
+  59   1          while (1) {
+  60   2              sp_control();
+  61   2          
+  62   2              if ( 1 == flag ) { 
+  63   3                  flag = 0;
+  64   3                  ES = 0;     // 防止中断死循环，故发送数据时关闭串口中断，待发送完毕�
+             -��打开中断允许
+  65   3                  // SBUF = temp;
+  66   3                  SBUF = 'H';
+  67   3      
+  68   3                  // if ( 1 == TI ) {  // 这里的 if 语句块有问题的，如果执行到 if 语句的时�
+             -�，  
+  69   3                  //     TI = 0;       // TI 还未被置1的话，那么后续 TI 就一直为 1，没有清零
+             -，那么就一直进入串口中断
+  70   3                  //     ES = 1;       // 所以这里应该采用 while (!TI); 让程序阻断在这，直到 T
+             -I 为1，再接着执行后续代码
+  71   3                  // }                 // 或者将 if 语句块放到 if(1 == flag) 外面也行，这样就会
+             -不断的执行 if(1==TI)，而非之前的仅检测一次
+  72   3                  
+  73   3                  while (!TI);
+  74   3                  TI = 0;
+  75   3                  ES = 1;
+  76   3              }
+  77   2      
+  78   2              // if ( 1 == TI ) {  // 或者将 if 语句块放到 if(1 == flag) 外面也行，这样就会不�
+             -��的执行 if(1==TI)，而非之前的仅检测一次
+  79   2              //     TI = 0;       
+  80   2              //     ES = 1;       
+  81   2              // }
+  82   2          }
+  83   1          
+  84   1      
+  85   1      }
+  86          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     87    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
